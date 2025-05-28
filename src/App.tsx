@@ -11,6 +11,7 @@ import EquipmentArchives from './pages/EquipmentArchives';
 import Calibration from './pages/Calibration';
 import Maintenance from './pages/Maintenance';
 import MaterialSubmission from './pages/MaterialSubmission';
+import ArchivistDashboard from './pages/ArchivistDashboard';
 import type { Role } from './config/roles';
 import { users } from './config/roles';
 
@@ -51,7 +52,7 @@ const App: React.FC = () => {
           }
         >
           <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<div>Dashboard</div>} />
+          <Route path="dashboard" element={<ArchivistDashboard />} />
           <Route path="files" element={<Files />} />
           <Route path="versions" element={<Versions />} />
           <Route path="archives" element={<Archives />} />

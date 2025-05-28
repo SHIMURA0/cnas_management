@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Dropdown, Divider } from 'antd';
+import { Layout, Menu, Avatar, Dropdown, Divider, Modal, Descriptions } from 'antd';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -33,12 +33,24 @@ const userMenuItems = [
   },
 ];
 
+const mockArchivistInfo = {
+  name: '张档案',
+  employeeId: 'AR2024001',
+  department: '档案管理部',
+  position: '高级档案管理员',
+  email: 'archivist@example.com',
+  phone: '13800138000',
+  joinDate: '2020-01-01',
+  avatar: '',
+};
+
 const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const userRole = localStorage.getItem('userRole') || 'archivist';
   const userName = localStorage.getItem('userName') || '档案管理员';
+  const [profileVisible, setProfileVisible] = useState(false);
 
   // 根据用户角色过滤菜单项
   const filteredMenuItems = menuConfig
@@ -67,6 +79,8 @@ const MainLayout: React.FC = () => {
       localStorage.removeItem('userRole');
       localStorage.removeItem('userName');
       navigate('/login');
+    } else if (key === 'profile') {
+      setProfileVisible(true);
     }
   };
 
@@ -124,6 +138,27 @@ const MainLayout: React.FC = () => {
           </div>
         </Content>
       </Layout>
+      {/* 个人信息弹框 */}
+      <Modal
+        title="个人信息"
+        open={profileVisible}
+        onCancel={() => setProfileVisible(false)}
+        footer={null}
+        width={480}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <Avatar size={80} icon={<UserOutlined />} src={mockArchivistInfo.avatar} />
+        </div>
+        <Descriptions column={1} bordered>
+          <Descriptions.Item label="姓名">{mockArchivistInfo.name}</Descriptions.Item>
+          <Descriptions.Item label="工号">{mockArchivistInfo.employeeId}</Descriptions.Item>
+          <Descriptions.Item label="部门">{mockArchivistInfo.department}</Descriptions.Item>
+          <Descriptions.Item label="职位">{mockArchivistInfo.position}</Descriptions.Item>
+          <Descriptions.Item label="邮箱">{mockArchivistInfo.email}</Descriptions.Item>
+          <Descriptions.Item label="电话">{mockArchivistInfo.phone}</Descriptions.Item>
+          <Descriptions.Item label="入职日期">{mockArchivistInfo.joinDate}</Descriptions.Item>
+        </Descriptions>
+      </Modal>
       {/* 自定义选中项灰色样式 */}
       <style>{`
         .custom-sider-menu .ant-menu-item-selected {

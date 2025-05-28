@@ -36,6 +36,12 @@ export const users: User[] = [
 // 菜单配置
 export const menuConfig: MenuItem[] = [
   {
+    key: '/dashboard',
+    icon: 'FileOutlined',
+    label: '工作台',
+    roles: ['archivist'],
+  },
+  {
     key: '/files',
     icon: 'FileOutlined',
     label: '文件管理',
