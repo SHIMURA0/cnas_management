@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Row, Col, Statistic, Table, Tag, Space } from 'antd';
 import { FileOutlined, FileSearchOutlined, TeamOutlined, UserOutlined, FolderOpenOutlined, ClockCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { Line, Pie } from '@ant-design/charts';
+import { Line, Pie, Column } from '@ant-design/charts';
 import './ArchivistDashboard.css';
 
 const quickActions = [
@@ -78,6 +78,28 @@ const operationTypeData = [
   { type: '销毁', value: 12 },
 ];
 
+// Mock 季度对接人员文件数据
+const personnelFileData = [
+  { name: '张工程师', files: 45, department: '研发部', month: '1月' },
+  { name: '李经理', files: 38, department: '市场部', month: '1月' },
+  { name: '王主管', files: 52, department: '生产部', month: '1月' },
+  { name: '赵总监', files: 29, department: '财务部', month: '1月' },
+  { name: '刘主任', files: 41, department: '人事部', month: '1月' },
+  { name: '陈经理', files: 33, department: '销售部', month: '1月' },
+  { name: '张工程师', files: 52, department: '研发部', month: '2月' },
+  { name: '李经理', files: 45, department: '市场部', month: '2月' },
+  { name: '王主管', files: 48, department: '生产部', month: '2月' },
+  { name: '赵总监', files: 35, department: '财务部', month: '2月' },
+  { name: '刘主任', files: 38, department: '人事部', month: '2月' },
+  { name: '陈经理', files: 42, department: '销售部', month: '2月' },
+  { name: '张工程师', files: 48, department: '研发部', month: '3月' },
+  { name: '李经理', files: 42, department: '市场部', month: '3月' },
+  { name: '王主管', files: 55, department: '生产部', month: '3月' },
+  { name: '赵总监', files: 32, department: '财务部', month: '3月' },
+  { name: '刘主任', files: 45, department: '人事部', month: '3月' },
+  { name: '陈经理', files: 39, department: '销售部', month: '3月' },
+];
+
 const ArchivistDashboard: React.FC = () => {
   const navigate = useNavigate();
 
@@ -113,6 +135,76 @@ const ArchivistDashboard: React.FC = () => {
     color: ['#3B82F6', '#F59E42', '#10B981', '#F43F5E'],
     tooltip: { formatter: (datum: any) => ({ name: datum.type, value: datum.value }) },
     animation: { appear: { animation: 'wave-in', duration: 1200 } },
+  };
+
+  // 柱状图配置
+  const columnConfig = {
+    data: personnelFileData,
+    xField: 'month',
+    yField: 'files',
+    seriesField: 'name',
+    isStack: true,
+    height: 400,
+    color: ['#6366F1', '#8B5CF6', '#EC4899', '#F43F5E', '#F59E42', '#10B981'],
+    columnStyle: {
+      radius: [4, 4, 0, 0],
+    },
+    label: {
+      position: 'middle',
+      style: {
+        fill: '#fff',
+        fontSize: 12,
+        fontWeight: 500,
+      },
+    },
+    legend: {
+      position: 'bottom',
+      flipPage: true,
+      itemHeight: 20,
+      itemWidth: 100,
+      itemSpacing: 8,
+      marker: {
+        symbol: 'circle',
+      },
+      text: {
+        style: {
+          fill: '#64748b',
+          fontSize: 12,
+        },
+      },
+    },
+    tooltip: {
+      formatter: (datum: any) => {
+        return { name: datum.name, value: datum.files + ' 份文件' };
+      },
+    },
+    xAxis: {
+      label: {
+        style: {
+          fill: '#64748b',
+          fontSize: 12,
+        },
+      },
+    },
+    yAxis: {
+      label: {
+        style: {
+          fill: '#64748b',
+          fontSize: 12,
+        },
+      },
+    },
+    animation: {
+      appear: {
+        animation: 'wave-in',
+        duration: 1000,
+      },
+    },
+    interactions: [
+      {
+        type: 'element-active',
+      },
+    ],
   };
 
   return (
@@ -166,6 +258,35 @@ const ArchivistDashboard: React.FC = () => {
           <Card className="dashboard-stat-card" style={{ border: 'none', borderRadius: 18, boxShadow: '0 2px 16px 0 #e5e7eb', minHeight: 320 }}>
             <div style={{ fontWeight: 600, fontSize: 18, color: '#374151', marginBottom: 12 }}>操作类型分布</div>
             <Pie {...pieConfig} />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* 季度对接人员文件统计 */}
+      <Row gutter={24} className="mb-8">
+        <Col xs={24}>
+          <Card 
+            className="dashboard-stat-card" 
+            style={{ 
+              border: 'none', 
+              borderRadius: 18, 
+              boxShadow: '0 2px 16px 0 #e5e7eb',
+              background: 'linear-gradient(to bottom right, #ffffff, #f8fafc)'
+            }}
+          >
+            <div style={{ 
+              fontWeight: 600, 
+              fontSize: 18, 
+              color: '#374151', 
+              marginBottom: 24,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <TeamOutlined style={{ color: '#6366F1' }} />
+              本季度对接人员文件统计
+            </div>
+            <Column {...columnConfig} />
           </Card>
         </Col>
       </Row>
