@@ -30,6 +30,7 @@ import {
   notification,
   Radio,
   Tree,
+  Drawer,
 } from 'antd';
 import {
   UploadOutlined,
@@ -56,6 +57,7 @@ import type { UploadFile } from 'antd/es/upload/interface';
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import { Pie, Bar, Line } from '@ant-design/plots';
+import './MaterialSubmission.css';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -231,8 +233,9 @@ const MaterialSubmission: React.FC = () => {
   const [data, setData] = useState<MaterialSubmission[]>(mockData);
   const [searchText, setSearchText] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [isDetailDrawerVisible, setIsDetailDrawerVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<MaterialSubmission | null>(null);
+  const [isDrawerLoading, setIsDrawerLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -409,9 +412,36 @@ const MaterialSubmission: React.FC = () => {
   };
 
   const handleViewDetails = (record: MaterialSubmission) => {
+    setIsDrawerLoading(true);
     setSelectedRecord(record);
-    setIsDetailModalVisible(true);
+    setIsDetailDrawerVisible(true);
+    // 模拟加载延迟
+    setTimeout(() => {
+      setIsDrawerLoading(false);
+    }, 500);
   };
+
+  const handleCloseDrawer = () => {
+    setIsDetailDrawerVisible(false);
+    // 延迟清除选中的记录，避免闪烁
+    setTimeout(() => {
+      setSelectedRecord(null);
+    }, 300);
+  };
+
+  // 键盘快捷键支持
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isDetailDrawerVisible && event.key === 'Escape') {
+        handleCloseDrawer();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isDetailDrawerVisible]);
 
   // 批量删除
   const handleBatchDelete = () => {
@@ -891,91 +921,140 @@ const MaterialSubmission: React.FC = () => {
         </Form>
       </Modal>
 
-      {/* 详情查看模态框 */}
-      <Modal
+      {/* 详情查看抽屉 */}
+      <Drawer
         title="材料详情"
-        open={isDetailModalVisible}
-        onCancel={() => setIsDetailModalVisible(false)}
-        footer={null}
-        width={800}
+        placement="right"
+        width={600}
+        open={isDetailDrawerVisible}
+        onClose={handleCloseDrawer}
+        className="material-submission-drawer"
+        loading={isDrawerLoading}
+        footer={
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              {selectedRecord && (
+                <span>
+                  最后更新: {selectedRecord.history[selectedRecord.history.length - 1]?.date}
+                </span>
+              )}
+            </div>
+            <Space>
+              <Button onClick={handleCloseDrawer}>
+                关闭
+              </Button>
+              <Button 
+                type="primary" 
+                icon={<DownloadOutlined />}
+                onClick={() => message.info('导出详情')}
+              >
+                导出
+              </Button>
+            </Space>
+          </div>
+        }
       >
-        {selectedRecord && (
+        {selectedRecord ? (
           <div className="space-y-4">
-            <Descriptions bordered column={2}>
-              <Descriptions.Item label="标题" span={2}>
-                {selectedRecord.title}
-              </Descriptions.Item>
-              <Descriptions.Item label="类型">
-                {selectedRecord.type}
-              </Descriptions.Item>
-              <Descriptions.Item label="优先级">
-                <Tag color={priorityColors[selectedRecord.priority]}>
-                  {priorityText[selectedRecord.priority]}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="提交日期">
-                {selectedRecord.submitDate}
-              </Descriptions.Item>
-              <Descriptions.Item label="状态">
-                <Tag color={statusColors[selectedRecord.status]}>
-                  {statusText[selectedRecord.status]}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="提交人">
-                {selectedRecord.submitter}
-              </Descriptions.Item>
-              <Descriptions.Item label="审核人">
-                {selectedRecord.reviewer || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="审核日期">
-                {selectedRecord.reviewDate || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="部门" span={2}>
-                {selectedRecord.department}
-              </Descriptions.Item>
-              <Descriptions.Item label="描述" span={2}>
-                {selectedRecord.description || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="备注" span={2}>
-                {selectedRecord.comment || '-'}
-              </Descriptions.Item>
-            </Descriptions>
+            {/* 基本信息 */}
+            <Card title="基本信息" size="small" className="mb-4">
+              <Descriptions column={2} size="small">
+                <Descriptions.Item label="标题">
+                  {selectedRecord.title}
+                </Descriptions.Item>
+                <Descriptions.Item label="类型">
+                  {selectedRecord.type}
+                </Descriptions.Item>
+                <Descriptions.Item label="优先级">
+                  <Tag color={priorityColors[selectedRecord.priority]}>
+                    {priorityText[selectedRecord.priority]}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="状态">
+                  <Tag color={statusColors[selectedRecord.status]}>
+                    {statusText[selectedRecord.status]}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="提交日期">
+                  {selectedRecord.submitDate}
+                </Descriptions.Item>
+                <Descriptions.Item label="部门">
+                  {selectedRecord.department}
+                </Descriptions.Item>
+                <Descriptions.Item label="提交人">
+                  {selectedRecord.submitter}
+                </Descriptions.Item>
+                <Descriptions.Item label="审核人">
+                  {selectedRecord.reviewer || '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="审核日期">
+                  {selectedRecord.reviewDate || '-'}
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
 
-            <Divider orientation="left">处理历史</Divider>
-            <Timeline>
-              {selectedRecord.history.map((item, index) => (
-                <Timeline.Item
-                  key={index}
-                  color={
-                    item.action === '提交材料' ? 'blue' :
-                    item.action === '开始审核' ? 'orange' :
-                    item.action === '审核通过' ? 'green' :
-                    item.action === '审核拒绝' ? 'red' : 'gray'
-                  }
-                >
-                  <p className="font-medium">{item.action}</p>
-                  <p className="text-gray-500 text-sm">
-                    {item.date} - {item.operator}
-                  </p>
-                  {item.comment && (
-                    <p className="text-gray-600 mt-1">{item.comment}</p>
-                  )}
-                </Timeline.Item>
-              ))}
-            </Timeline>
+            {(selectedRecord.description || selectedRecord.comment) && (
+              <Card title="详细信息" size="small" className="mb-4">
+                {selectedRecord.description && (
+                  <div className="mb-3">
+                    <div className="text-sm font-medium mb-1">描述</div>
+                    <div className="text-sm text-gray-600">
+                      {selectedRecord.description}
+                    </div>
+                  </div>
+                )}
+                {selectedRecord.comment && (
+                  <div>
+                    <div className="text-sm font-medium mb-1">备注</div>
+                    <div className="text-sm text-gray-600">
+                      {selectedRecord.comment}
+                    </div>
+                  </div>
+                )}
+              </Card>
+            )}
+
+            <Card title="处理历史" size="small" className="mb-4">
+              <Timeline>
+                {selectedRecord.history.map((item, index) => (
+                  <Timeline.Item
+                    key={index}
+                    color={
+                      item.action === '提交材料' ? 'blue' :
+                      item.action === '开始审核' ? 'orange' :
+                      item.action === '审核通过' ? 'green' :
+                      item.action === '审核拒绝' ? 'red' : 'gray'
+                    }
+                  >
+                    <p className="font-medium">{item.action}</p>
+                    <p className="text-gray-500 text-sm">
+                      {item.date} - {item.operator}
+                    </p>
+                    {item.comment && (
+                      <p className="text-gray-600 mt-1 text-sm">
+                        {item.comment}
+                      </p>
+                    )}
+                  </Timeline.Item>
+                ))}
+              </Timeline>
+            </Card>
 
             {selectedRecord.files.length > 0 && (
-              <>
-                <Divider orientation="left">附件列表</Divider>
+              <Card title="附件列表" size="small">
                 <div className="space-y-2">
                   {selectedRecord.files.map((file, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                      className="flex items-center justify-between p-2 border rounded"
                     >
-                      <span>{file.name}</span>
+                      <div className="flex items-center gap-2">
+                        <FileTextOutlined className="text-gray-400" />
+                        <span className="text-sm">{file.name}</span>
+                      </div>
                       <Button
                         type="link"
+                        size="small"
                         icon={<DownloadOutlined />}
                         onClick={() => message.info('下载文件')}
                       >
@@ -984,11 +1063,19 @@ const MaterialSubmission: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              </>
+              </Card>
             )}
           </div>
+        ) : (
+          <div className="flex items-center justify-center h-64 text-gray-500">
+            <div className="text-center">
+              <FileTextOutlined className="text-4xl mb-4" />
+              <p className="text-lg mb-2">暂无数据</p>
+              <p className="text-sm text-gray-400">请选择一个材料查看详情</p>
+            </div>
+          </div>
         )}
-      </Modal>
+      </Drawer>
     </div>
   );
 };

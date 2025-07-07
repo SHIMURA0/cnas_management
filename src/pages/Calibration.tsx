@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Input, Space, Tag, Card, Tabs, Badge, Modal, Form, Select, DatePicker, message, Upload, Tooltip, notification } from 'antd';
+import { Table, Button, Input, Space, Tag, Card, Tabs, Badge, Modal, Form, Select, DatePicker, message, Upload, Tooltip, notification, Row, Col } from 'antd';
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, FileOutlined, HistoryOutlined, BellOutlined, ExportOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import * as XLSX from 'xlsx';
@@ -387,130 +387,183 @@ const Calibration: React.FC = () => {
         open={modalVisible}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
-        width={600}
+        width={800}
+        okText="确定"
+        cancelText="取消"
       >
         <Form
           form={form}
           layout="vertical"
           className="mt-4"
         >
-          <Form.Item
-            name="equipmentName"
-            label="设备名称"
-            rules={[{ required: true, message: '请输入设备名称' }]}
-          >
-            <Input placeholder="请输入设备名称" />
-          </Form.Item>
-          <Form.Item
-            name="equipmentModel"
-            label="设备型号"
-            rules={[{ required: true, message: '请输入设备型号' }]}
-          >
-            <Input placeholder="请输入设备型号" />
-          </Form.Item>
-          <Form.Item
-            name="serialNumber"
-            label="序列号"
-            rules={[{ required: true, message: '请输入序列号' }]}
-          >
-            <Input placeholder="请输入序列号" />
-          </Form.Item>
-          <Form.Item
-            name="calibrationType"
-            label="校准类型"
-            rules={[{ required: true, message: '请选择校准类型' }]}
-          >
-            <Select
-              placeholder="请选择校准类型"
-              options={[
-                { label: '定期校准', value: '定期校准' },
-                { label: '首次校准', value: '首次校准' },
-                { label: '维修后校准', value: '维修后校准' },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item
-            name="calibrationDate"
-            label="校准日期"
-            rules={[{ required: true, message: '请选择校准日期' }]}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-          <Form.Item
-            name="nextCalibrationDate"
-            label="下次校准日期"
-            rules={[{ required: true, message: '请选择下次校准日期' }]}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-          <Form.Item
-            name="status"
-            label="状态"
-            rules={[{ required: true, message: '请选择状态' }]}
-          >
-            <Select
-              placeholder="请选择状态"
-              options={[
-                { label: '待校准', value: '待校准' },
-                { label: '已校准', value: '已校准' },
-                { label: '已过期', value: '已过期' },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item
-            name="calibrator"
-            label="校准人员"
-            rules={[{ required: true, message: '请输入校准人员' }]}
-          >
-            <Input placeholder="请输入校准人员" />
-          </Form.Item>
-          <Form.Item
-            name="result"
-            label="校准结果"
-            rules={[{ required: true, message: '请选择校准结果' }]}
-          >
-            <Select
-              placeholder="请选择校准结果"
-              options={[
-                { label: '合格', value: '合格' },
-                { label: '不合格', value: '不合格' },
-                { label: '待定', value: '待定' },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item
-            name="certificateNo"
-            label="证书编号"
-            rules={[{ required: true, message: '请输入证书编号' }]}
-          >
-            <Input placeholder="请输入证书编号" />
-          </Form.Item>
-          <Form.Item
-            name="remark"
-            label="备注"
-          >
-            <Input.TextArea rows={4} placeholder="请输入备注信息" />
-          </Form.Item>
-          <Form.Item
-            label="校准证书"
-          >
-            <Upload {...{
-              name: 'file',
-              action: '/api/upload',
-              headers: {
-                authorization: 'authorization-text',
-              },
-              onChange(info) {
-                if (info.file.status === 'done') {
-                  message.success(`${info.file.name} 上传成功`);
-                } else if (info.file.status === 'error') {
-                  message.error(`${info.file.name} 上传失败`);
-                }
-              },
-            }}>
-              <Button icon={<UploadOutlined />}>上传证书</Button>
-            </Upload>
-          </Form.Item>
+          {/* 第一行：设备基本信息 */}
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="equipmentName"
+                label="设备名称"
+                rules={[{ required: true, message: '请输入设备名称' }]}
+              >
+                <Input placeholder="请输入设备名称" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="equipmentModel"
+                label="设备型号"
+                rules={[{ required: true, message: '请输入设备型号' }]}
+              >
+                <Input placeholder="请输入设备型号" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* 第二行：序列号和校准类型 */}
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="serialNumber"
+                label="序列号"
+                rules={[{ required: true, message: '请输入序列号' }]}
+              >
+                <Input placeholder="请输入序列号" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="calibrationType"
+                label="校准类型"
+                rules={[{ required: true, message: '请选择校准类型' }]}
+              >
+                <Select
+                  placeholder="请选择校准类型"
+                  options={[
+                    { label: '定期校准', value: '定期校准' },
+                    { label: '首次校准', value: '首次校准' },
+                    { label: '维修后校准', value: '维修后校准' },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* 第三行：校准日期 */}
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="calibrationDate"
+                label="校准日期"
+                rules={[{ required: true, message: '请选择校准日期' }]}
+              >
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="nextCalibrationDate"
+                label="下次校准日期"
+                rules={[{ required: true, message: '请选择下次校准日期' }]}
+              >
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* 第四行：状态和校准人员 */}
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="status"
+                label="状态"
+                rules={[{ required: true, message: '请选择状态' }]}
+              >
+                <Select
+                  placeholder="请选择状态"
+                  options={[
+                    { label: '待校准', value: '待校准' },
+                    { label: '已校准', value: '已校准' },
+                    { label: '已过期', value: '已过期' },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="calibrator"
+                label="校准人员"
+                rules={[{ required: true, message: '请输入校准人员' }]}
+              >
+                <Input placeholder="请输入校准人员" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* 第五行：校准结果和证书编号 */}
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="result"
+                label="校准结果"
+                rules={[{ required: true, message: '请选择校准结果' }]}
+              >
+                <Select
+                  placeholder="请选择校准结果"
+                  options={[
+                    { label: '合格', value: '合格' },
+                    { label: '不合格', value: '不合格' },
+                    { label: '待定', value: '待定' },
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="certificateNo"
+                label="证书编号"
+                rules={[{ required: true, message: '请输入证书编号' }]}
+              >
+                <Input placeholder="请输入证书编号" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* 第六行：备注 */}
+          <Row>
+            <Col span={24}>
+              <Form.Item
+                name="remark"
+                label="备注"
+              >
+                <Input.TextArea rows={3} placeholder="请输入备注信息" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* 第七行：校准证书上传 */}
+          <Row>
+            <Col span={24}>
+              <Form.Item
+                label="校准证书"
+              >
+                <Upload {...{
+                  name: 'file',
+                  action: '/api/upload',
+                  headers: {
+                    authorization: 'authorization-text',
+                  },
+                  onChange(info) {
+                    if (info.file.status === 'done') {
+                      message.success(`${info.file.name} 上传成功`);
+                    } else if (info.file.status === 'error') {
+                      message.error(`${info.file.name} 上传失败`);
+                    }
+                  },
+                }}>
+                  <Button icon={<UploadOutlined />}>上传证书</Button>
+                </Upload>
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </div>

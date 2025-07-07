@@ -874,6 +874,8 @@ const EquipmentArchives: React.FC = () => {
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
         width={800}
+        okText="确定"
+        cancelText="取消"
       >
         <Form
           form={form}
@@ -1011,6 +1013,8 @@ const EquipmentArchives: React.FC = () => {
         onOk={handleSupplierModalOk}
         onCancel={() => setSupplierModalVisible(false)}
         width={600}
+        okText="确定"
+        cancelText="取消"
       >
         <Form
           form={supplierForm}
